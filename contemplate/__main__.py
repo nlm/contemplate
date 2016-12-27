@@ -3,52 +3,8 @@ import pkg_resources as pkr
 import argparse
 import logging
 import re
-#import json
-#from jinja2 import Environment
-
-#def render_template(jinja_env, input_file, data=None):
-#    payload = {'env': os.environ(),
-#               'data': data}
-#    if input_file == '-':
-#        return env.from_string(sys.stdin.read()).render(payload)
-#    else:
-#        with open(input_file, 'r') as tfd:
-#            return env.from_string(tfd.read()).render(payload)
-
-#class TemplateEngine(object):
-#    __metaclass__ = ABCMeta
-#
-#    @abstractmethod
-#    def render(self, data):
-#        pass
-#
-#class Jinja2Engine(TemplateEngine):
-#
-#    def __init__(self):
-#        pass
-#
-#    def render
-#
-#class DataSource(object):
-#    __metaclass__ = ABCMeta
-
-#def build_environment(args):
-#    extensions = ['jinja2.ext.do',
-#                  'jinja2.ext.loopcontrols',
-#                  'jinja2.ext.with_',
-#                  'jinja2.ext.autoescape']
-#    env = Environment(extensions=extensions)
-#    env.filters['jsonify'] = json.dumps
-#    return env
-#
-#def gather_data(data_files):
-#    for filename in data:
-#        if filename.endswith('.json'):
-#import
-#        with open(filename, 'r') as fd:
 
 def get_entry_point(group, name):
-    print('get_entry_point({0}, {1})'.format(group, name))
     for entry_point in pkr.iter_entry_points(group, name):
         return entry_point.load()
     return None
@@ -73,7 +29,8 @@ def main(arguments=None):
     parser = argparse.ArgumentParser()
     #subparsers = parser.add_subparsers()
 
-    parser.add_argument('-l', '--loglevel', default=logging.DEBUG)
+    parser.add_argument('-l', '--loglevel', default='WARNING',
+                        choices=('DEBUG', 'INFO', 'WARNING', 'ERROR'))
     parser.add_argument('input_file', help='input_file')
     parser.add_argument('-o', '--output-file',
                         metavar='output_file', help='output file')
@@ -84,9 +41,12 @@ def main(arguments=None):
 
     args = parser.parse_args(arguments)
 
+    logging.basicConfig(level=getattr(logging, args.loglevel))
+    logger = logging.getLogger(__name__)
+
     # Engine
     engine = get_engine(args.engine)
-    print('engine={0}'.format(engine))
+    logger.debug('engine={0}'.format(engine))
 
     # Payload
     payload = {}
@@ -98,7 +58,7 @@ def main(arguments=None):
             payload.update({key: value})
         else:
             payload.update(value)
-    print('payload={0}'.format(payload))
+    logger.debug('payload={0}'.format(payload))
 
     # Render
     with open(args.input_file, 'r') as fd:
