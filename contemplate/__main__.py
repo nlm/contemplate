@@ -70,6 +70,7 @@ def main(arguments=None):
                         choices=('DEBUG', 'INFO', 'WARNING', 'ERROR'))
 
     subparsers = parser.add_subparsers()
+    subparsers.required = True
 
     p_engines = subparsers.add_parser('engines')
     p_engines.set_defaults(func=cmd_engines)
